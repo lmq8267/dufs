@@ -223,8 +223,10 @@ jobs:
             if [[ -f $RUST_LIB_SRC/library/Cargo.lock && ! -f $RUST_LIB_SRC/Cargo.lock ]]; then 
                cp -f $RUST_LIB_SRC/library/Cargo.lock $RUST_LIB_SRC/Cargo.lock
             fi
+          else
+            rustup target add ${{ env.TARGET }}
           fi
-          rustup target add ${{ env.TARGET }}
+          
           #添加交叉编译配置
           cat >>~/.cargo/config <<EOF
           [target.x86_64-unknown-linux-musl]
