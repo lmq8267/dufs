@@ -1,0 +1,364 @@
+name: 编译dufs
+
+on:
+#每天北京时间11点自动检测更新
+  schedule:
+   - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '指定编译的版本号'
+        required: false
+        default: ''
+      info:
+        description: '发布Release的补充说明'
+        required: false
+        default: ''
+      bj:
+        description: '强制使用手动编译'
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: write
+  actions: write
+env:
+  TZ: Asia/Shanghai
+  CARGO_TERM_COLOR: always
+  BJ: ${{ github.event.inputs.bj }}
+  BRANCH: ${{ github.event.inputs.branch }}
+
+jobs:
+  check:
+   runs-on: ubuntu-latest
+   outputs:
+     ver: ${{ steps.getversion.outputs.ver }}
+     tag: ${{ steps.getversion.outputs.tag }}
+   steps:
+   - name: 检查更新
+     id: getversion
+     run: |
+      ver=`curl https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r '.tag_name'`
+      tag=`curl https://api.github.com/repos/sigoden/dufs/releases/latest | jq -r '.tag_name'`
+      echo "ver=${ver}" >> $GITHUB_OUTPUT
+      echo "tag=${tag}" >> $GITHUB_OUTPUT
+   -  name: 删除工作流
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        retain_days: 0
+        keep_minimum_runs: 0
+  build-assets:
+    needs: check
+    if: ${{ github.event.inputs.bj == 'true' || (github.event.inputs.bj != 'true' && needs.check.outputs.ver != needs.check.outputs.tag) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: TransparentLC/dufs-material-assets
+          ref: master
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          check-latest: true
+          cache: pnpm
+          cache-dependency-path: "**/package.json"
+      - name: Build assets
+        run: |
+          pnpm install
+          DUFS_EMBED_FILENAME=1 pnpm run build
+      - name: Upload assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: dufs-自定义页面
+          path: dist
+
+  
+  build-dufs:
+    needs: 
+     - build-assets
+     - check
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        
+        - target: aarch64-apple-darwin
+          os: macos-latest
+          NAME: dufs-aarch64-apple-darwin
+          
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-aarch64-pc-windows-msvc.exe
+          
+        - target: x86_64-apple-darwin
+          os: macos-latest
+          NAME: dufs-x86_64-apple-darwin
+          
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-x86_64-pc-windows-msvc.exe
+          
+        - target: i686-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-i686-pc-windows-msvc.exe
+          
+        - target: aarch64-unknown-linux-musl
+          os: ubuntu-latest
+          URL: aarch64-linux-musl
+          NAME: dufs-aarch64-linux-musl
+          
+        - target: x86_64-unknown-linux-musl
+          os: ubuntu-latest
+          URL: x86_64-linux-musl
+          NAME: dufs-x86_64-linux-musl
+            
+        - target: i686-unknown-linux-musl
+          os: ubuntu-latest
+          URL: i686-linux-musl
+          NAME: dufs-i686-linux-musl
+        
+        - target: armv7-unknown-linux-musleabihf
+          os: ubuntu-latest
+          URL: armv7l-linux-musleabihf
+          NAME: dufs-armv7-linux-musleabihf
+
+        - target: armv7-unknown-linux-musleabi
+          os: ubuntu-latest
+          URL: armv7m-linux-musleabi
+          NAME: dufs-armv7-linux-musleabi
+          
+        - target: arm-unknown-linux-musleabihf
+          os: ubuntu-latest
+          URL: arm-linux-musleabihf
+          NAME: dufs-arm-linux-musleabihf
+
+        - target: arm-unknown-linux-musleabi
+          os: ubuntu-latest
+          URL: arm-linux-musleabi
+          NAME: dufs-arm-linux-musleabi
+
+        - target: mipsel-unknown-linux-musl
+          os: ubuntu-latest
+          URL: mipsel-linux-muslsf
+          NAME: dufs-mipsel-linux-muslsf
+
+        - target: mips-unknown-linux-musl
+          os: ubuntu-latest
+          URL: mips-linux-muslsf
+          NAME: dufs-mips-linux-muslsf
+
+        - target: x86_64-unknown-freebsd
+          os: ubuntu-latest
+          NAME: dufs-x86_64-freebsd
+            
+    runs-on: ${{ matrix.os }}
+    env:
+      TARGET: ${{ matrix.target }}
+      URL: ${{ matrix.URL }}
+      NAME: ${{ matrix.NAME }}
+    steps:
+      - name: 确定版本号
+        shell: bash
+        run: |
+          if [[ "${{ env.BJ }}" == "true" ]]; then
+            echo "强制进行编译..."
+            if [[ -n "${{ github.event.inputs.branch }}" ]]; then
+                echo "使用手动指定的版本：${{ github.event.inputs.branch }}"
+                TAG=${{ github.event.inputs.branch }}
+                echo "TAG=$TAG" >> $GITHUB_ENV
+            else
+                echo "使用自动获取的版本：${{ needs.check.outputs.tag }}"
+                TAG=${{ needs.check.outputs.tag }}
+                echo "TAG=$TAG" >> $GITHUB_ENV
+            fi
+          else
+            echo "使用自动获取的版本：${{ needs.check.outputs.tag }}"
+            TAG=${{ needs.check.outputs.tag }}
+            echo "TAG=$TAG" >> $GITHUB_ENV
+          fi
+          
+      - uses: actions/checkout@v5
+        with:
+          repository: sigoden/dufs
+          ref: ${{ env.TAG }}
+          
+      - name: 下载apple-windows工具链
+        if: ${{ matrix.TARGET == 'aarch64-apple-darwin' || matrix.TARGET == 'aarch64-pc-windows-msvc' || matrix.TARGET == 'x86_64-apple-darwin' || matrix.TARGET == 'x86_64-pc-windows-msvc' || matrix.TARGET == 'i686-pc-windows-msvc' || matrix.TARGET == 'x86_64-unknown-freebsd' }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          
+      - name: 下载apple-windows编译工具
+        if: ${{ matrix.TARGET == 'aarch64-apple-darwin' || matrix.TARGET == 'aarch64-pc-windows-msvc' || matrix.TARGET == 'i686-pc-windows-msvc' || matrix.TARGET == 'x86_64-unknown-freebsd' }}
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: 下载linux编译工具
+        if: ${{ matrix.TARGET != 'aarch64-apple-darwin' && matrix.TARGET != 'aarch64-pc-windows-msvc' && matrix.TARGET != 'x86_64-apple-darwin' && matrix.TARGET != 'x86_64-pc-windows-msvc' && matrix.TARGET != 'i686-pc-windows-msvc' && matrix.TARGET != 'x86_64-unknown-freebsd' }}
+        run: |
+          mkdir -p /opt/musl_gcc
+          rustup set auto-self-update disable
+          echo "下载https://github.com/lmq8267/Toolchain/releases/download/musl-cross/${{ env.URL }}-cross.tgz"
+          wget -q -c https://github.com/lmq8267/Toolchain/releases/download/musl-cross/${{ env.URL }}-cross.tgz -P /opt/musl_gcc/
+          tar zxf /opt/musl_gcc/${{ env.URL }}-cross.tgz -C /opt/musl_gcc/
+          sudo ln -s /opt/musl_gcc/${{ env.URL }}-cross/bin/*gcc /usr/bin/
+          #sudo apt-get update && sudo apt-get install -qq crossbuild-essential-arm64 crossbuild-essential-armhf musl-tools
+          if [[ $TARGET =~ ^mips.*$ ]]; then
+            echo "指定 $TARGET 架构 使用rust 1.74版本，若编译失败 请修改此处升级版本 "
+            rustup install 1.74
+            rustup default 1.74
+          else
+            echo "指定 $TARGET 架构 使用rust 1.77版本，若编译失败 请修改此处升级版本 "
+            rustup install 1.77
+            rustup default 1.77
+          fi
+          rustup target add ${{ env.TARGET }}
+          #添加交叉编译配置
+          cat >>~/.cargo/config <<EOF
+          [target.x86_64-unknown-linux-musl]
+          linker = "x86_64-linux-musl-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.i686-unknown-linux-musl]
+          linker = "i686-linux-musl-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"] 
+          
+          [target.aarch64-unknown-linux-musl]
+          linker = "aarch64-linux-musl-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.armv7-unknown-linux-musleabi]
+          linker = "armv7m-linux-musleabi-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.armv7-unknown-linux-musleabihf]
+          linker = "armv7l-linux-musleabihf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.arm-unknown-linux-musleabi]
+          linker = "arm-linux-musleabi-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.arm-unknown-linux-musleabihf]
+          linker = "arm-linux-musleabihf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.mipsel-unknown-linux-musl]
+          linker = "mipsel-linux-muslsf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.mips-unknown-linux-musl]
+          linker = "mips-linux-muslsf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]      
+          EOF
+      - name: 打印版本信息 (Rust, cargo, GCC)
+        shell: bash
+        run: |
+          rustup -V
+          rustup toolchain list
+          rustup default
+          cargo -V
+          rustc -V
+      - name: 下载 assets 页面
+        uses: actions/download-artifact@v4
+        with:
+          name: dufs-自定义页面
+          path: dufs-material-assets-embed
+      - name: 替换自定义 assets 页面
+        shell: bash
+        run: |
+          cp dufs-material-assets-embed/index.css assets/index.css
+          cp dufs-material-assets-embed/index.html assets/index.html
+          cp dufs-material-assets-embed/index.js assets/index.js
+      - name: 编译dufs
+        shell: bash
+        run: |
+          if [[ $TARGET == 'aarch64-apple-darwin' || $TARGET == 'aarch64-pc-windows-msvc' || $TARGET == 'i686-pc-windows-msvc' || $TARGET == 'x86_64-unknown-freebsd' ]]; then
+            echo "编译： cross build --locked --release --target=${{ matrix.target }}"
+            cross build --locked --release --target=${{ matrix.target }}
+          else
+            echo "编译： cargo build --locked --release --target=${{ matrix.target }}"
+            cargo build --locked --release --target=${{ matrix.target }}
+          fi
+            
+          cd target/${{ matrix.target }}/release
+          mkdir -p ./out
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            mv ./dufs.exe ./out/${{ matrix.NAME }}
+          else
+            mv ./dufs ./out/${{ matrix.NAME }}
+          fi
+          
+          ls -alh ./out/
+          echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+      - name: 安装 UPX
+        if: ${{ matrix.TARGET != 'aarch64-apple-darwin' && matrix.TARGET != 'aarch64-pc-windows-msvc' && matrix.TARGET != 'x86_64-apple-darwin' && matrix.TARGET != 'x86_64-pc-windows-msvc' && matrix.TARGET != 'i686-pc-windows-msvc' && matrix.TARGET != 'x86_64-unknown-freebsd' }}
+        uses: crazy-max/ghaction-upx@v3
+        with:
+          version: v4.2.4
+          install-only: true
+      - name: 压缩程序
+        if: ${{ matrix.TARGET != 'aarch64-apple-darwin' && matrix.TARGET != 'aarch64-pc-windows-msvc' && matrix.TARGET != 'x86_64-apple-darwin' && matrix.TARGET != 'x86_64-pc-windows-msvc' && matrix.TARGET != 'i686-pc-windows-msvc' && matrix.TARGET != 'x86_64-unknown-freebsd' }}
+        run: |
+          cd target/${{ matrix.target }}/release/out
+          cp ${{ matrix.NAME }} ${{ matrix.NAME }}-upx
+          upx --lzma --best ${{ matrix.NAME }}-upx
+      - name: 上传程序
+        uses: actions/upload-artifact@v4
+        with:
+          name: dufs-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/out/*
+
+      - name: 发布
+        uses: softprops/action-gh-release@v2
+        with:
+            token: ${{ github.token }}
+            body: |
+             > ### ![](https://img.shields.io/badge/%E7%BC%96%E8%AF%91%E6%97%B6%E9%97%B4-${{ env.build_time }}-8267?logo=github&labelColor=%E9%A1%BB)![](https://img.shields.io/github/downloads/${{ github.repository }}/${{ env.TAG }}/total?label=%E4%B8%8B%E8%BD%BD%E6%AC%A1%E6%95%B0&logo=github) 
+
+              **-upx** 后缀的 为upx压缩文件
+              
+              **[官方更新说明](https://github.com/sigoden/dufs/releases)**
+
+              ${{ github.event.inputs.info }}
+              
+            tag_name: ${{ env.TAG }}
+            files: target/${{ matrix.target }}/release/out/*
+  keepalive-workflow:
+    # github超过60天未提交将自动停止工作流
+    name: 工作流保活 
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      #- uses: gautamkrishnar/keepalive-workflow@v2
+        #with:
+          #use_api: true
+      - name: 检查上次提交日期
+        id: check_commit_date
+        run: |
+          # 获取上次提交日期（格式：YYYY-MM-DD）
+          LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short)
+          echo "上次提交日期: $LAST_COMMIT_DATE"
+          # 计算当前日期和上次提交日期的差值（单位：天）
+          LAST_COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
+          CURRENT_TIMESTAMP=$(date +%s)
+          DIFF_DAYS=$(( (CURRENT_TIMESTAMP - LAST_COMMIT_TIMESTAMP) / 86400 ))
+          echo "距离上次提交以来的天数: $DIFF_DAYS"
+          echo "diff_days=$DIFF_DAYS" >> $GITHUB_ENV
+      - name: 执行空提交
+        if: ${{ env.diff_days > 50 }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 创建空提交
+          git commit --allow-empty -m "自动空提交，保持仓库活跃"
+          git push
