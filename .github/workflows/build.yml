@@ -254,6 +254,21 @@ jobs:
           [target.arm-unknown-linux-musleabihf]
           linker = "arm-linux-musleabihf-gcc"
           rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.x86_64-pc-windows-msvc]
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.i686-pc-windows-msvc]
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.aarch64-pc-windows-msvc]
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.x86_64-apple-darwin]
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.aarch64-apple-darwin]
+          rustflags = ["-C", "target-feature=+crt-static"]
           
           [target.mipsel-unknown-linux-musl]
           linker = "/opt/musl_gcc/mipsel-linux-muslsf-cross/bin/mipsel-linux-muslsf-gcc"
