@@ -162,8 +162,11 @@ jobs:
       TARGET: ${{ matrix.target }}
       URL: ${{ matrix.URL }}
       NAME: ${{ matrix.NAME }}
+    outputs:
+      TAG: ${{ steps.set-tag.outputs.TAG }}
     steps:
       - name: 确定版本号
+        id: set-tag
         shell: bash
         run: |
           if [[ "${{ env.BJ }}" == "true" ]]; then
@@ -182,6 +185,7 @@ jobs:
             TAG=${{ needs.check.outputs.tag }}
             echo "TAG=$TAG" >> $GITHUB_ENV
           fi
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT 
           
       - uses: actions/checkout@v5
         with:
@@ -359,6 +363,8 @@ jobs:
 
   release:
     needs: build-dufs
+    env:
+      TAG: ${{ needs.build-dufs.outputs.TAG }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 代码
