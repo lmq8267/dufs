@@ -210,13 +210,19 @@ jobs:
           sudo ln -s /opt/musl_gcc/${{ env.URL }}-cross/bin/*gcc /usr/bin/
           #sudo apt-get update && sudo apt-get install -qq crossbuild-essential-arm64 crossbuild-essential-armhf musl-tools
           if [[ $TARGET =~ ^mips.*$ ]]; then
-            echo "指定 $TARGET 架构 使用rust 1.74版本，若编译失败 请修改此处升级版本 "
-            rustup install 1.74
-            rustup default 1.74
-          else
-            echo "指定 $TARGET 架构 使用rust 1.77版本，若编译失败 请修改此处升级版本 "
-            rustup install 1.77
-            rustup default 1.77
+            cd "/opt/musl_gcc/${{ env.URL }}/lib/gcc/${{ env.URL }}/15.1.0" || exit 255
+            cp libgcc_eh.a libunwind.a
+            ar x libgcc.a _ctzsi2.o _clz.o _bswapsi2.o
+            ar rcs libctz.a _ctzsi2.o _clz.o _bswapsi2.o
+
+            rustup toolchain install nightly-2026-02-02-x86_64-unknown-linux-gnu
+            rustup component add rust-src --toolchain nightly-2026-02-02-x86_64-unknown-linux-gnu
+            # https://github.com/rust-lang/rust/issues/128808
+            # remove it after Cargo or rustc fix this.
+            RUST_LIB_SRC=$HOME/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/
+            if [[ -f $RUST_LIB_SRC/library/Cargo.lock && ! -f $RUST_LIB_SRC/Cargo.lock ]]; then 
+               cp -f $RUST_LIB_SRC/library/Cargo.lock $RUST_LIB_SRC/Cargo.lock
+            fi
           fi
           rustup target add ${{ env.TARGET }}
           #添加交叉编译配置
@@ -250,12 +256,24 @@ jobs:
           rustflags = ["-C", "target-feature=+crt-static"]
           
           [target.mipsel-unknown-linux-musl]
-          linker = "mipsel-linux-muslsf-gcc"
-          rustflags = ["-C", "target-feature=+crt-static"]
+          linker = "/opt/musl_gcc/mipsel-unknown-linux-muslsf/bin/mipsel-unknown-linux-muslsf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static",
+          "-L", "/opt/musl_gcc/mipsel-unknown-linux-muslsf/mipsel-linux-muslsf/lib",
+          "-L", "/opt/musl_gcc/mipsel-unknown-linux-muslsf/mipsel-unknown-linux-muslsf/sysroot/usr/lib",
+          "-L", "/opt/musl_gcc/mipsel-unknown-linux-muslsf/lib/gcc/mipsel-unknown-linux-muslsf/15.1.0",
+          "-l", "atomic",
+          "-l", "ctz",
+          "-l", "gcc"]
           
           [target.mips-unknown-linux-musl]
-          linker = "mips-linux-muslsf-gcc"
-          rustflags = ["-C", "target-feature=+crt-static"]      
+          linker = "/opt/musl_gcc/mips-unknown-linux-muslsf/bin/mips-unknown-linux-muslsf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static",
+          "-L", "/opt/musl_gcc/mips-unknown-linux-muslsf/mips-unknown-linux-muslsf/lib",
+          "-L", "/opt/musl_gcc/mips-unknown-linux-muslsf/mips-unknown-linux-muslsf/sysroot/usr/lib",
+          "-L", "/opt/musl_gcc/mips-unknown-linux-muslsf/lib/gcc/mips-unknown-linux-muslsf/15.1.0",
+          "-l", "atomic",
+          "-l", "ctz",
+          "-l", "gcc"]      
           EOF
       - name: 打印版本信息 (Rust, cargo, GCC)
         shell: bash
@@ -279,12 +297,39 @@ jobs:
       - name: 编译dufs
         shell: bash
         run: |
-          if [[ $TARGET == 'aarch64-apple-darwin' || $TARGET == 'aarch64-pc-windows-msvc' || $TARGET == 'i686-pc-windows-msvc' || $TARGET == 'x86_64-unknown-freebsd' ]]; then
+          if [[ $TARGET == 'aarch64-apple-darwin' || $TARGET == 'aarch64-pc-windows-msvc' || $TARGET == 'i686-pc-windows-msvc' || $TARGET == 'x86_64-unknown-freebsd' || $TARGET == 'x86_64-pc-windows-msvc' ]]; then
+            echo "开始修改 Cargo.toml 写入 thunk-rs..."
+            echo "" >> Cargo.toml
+            cat >> Cargo.toml <<'EOF'
+            [target.x86_64-pc-windows-msvc.build-dependencies]
+            thunk-rs = { version = "0.3.3", features = ["win7"] }
+
+            [target.i686-pc-windows-msvc.build-dependencies]
+            thunk-rs = { version = "0.3.3", features = ["win7"] }
+
+            [target.aarch64-pc-windows-msvc.build-dependencies]
+            thunk-rs = { version = "0.3.3", features = ["win7"] }
+            EOF
+            echo "创建 build.rs 文件..."
+            cat > build.rs <<'EOF'
+            // 配置 thunk-rs 来链接 Windows 7 兼容库，并自动设置链接参数
+            #[cfg(windows)]
+            fn main() {
+                thunk::thunk();
+            }
+
+            #[cfg(not(windows))]
+            fn main() {}
+            EOF
             echo "编译： cross build --locked --release --target=${{ matrix.target }}"
             cross build --locked --release --target=${{ matrix.target }}
           else
             echo "编译： cargo build --locked --release --target=${{ matrix.target }}"
-            cargo build --locked --release --target=${{ matrix.target }}
+            if [[ $TARGET =~ ^mips.*$ ]]; then
+              cargo +nightly-2026-02-02 build --locked --release --target=${{ matrix.target }}
+            else
+              cargo build --locked --release --target=${{ matrix.target }}
+            fi
           fi
             
           cd target/${{ matrix.target }}/release
