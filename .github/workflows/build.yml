@@ -357,6 +357,30 @@ jobs:
           name: dufs-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/out/*
 
+  release:
+    needs: build-dufs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v5
+
+      - name: 下载已上传的文件
+        uses: actions/download-artifact@v4
+        with:
+         path: dufs_files
+
+      - name: 设置构建时间
+        run: |
+         mkdir -p release
+         sudo timedatectl set-timezone "Asia/Shanghai"
+         # 遍历下载的每个 artifact 子文件夹，把里面的二进制移动到 release/
+         for dir in dufs_files/*; do
+          if [ -d "$dir" ]; then
+           mv "$dir"/* release/
+          fi
+         done
+         echo "build_time=$(date '+%Y年%m月%d日%H:%M:%S' | jq -sRr @uri)" >> $GITHUB_ENV
+
       - name: 发布
         uses: softprops/action-gh-release@v2
         with:
@@ -371,7 +395,7 @@ jobs:
               ${{ github.event.inputs.info }}
               
             tag_name: ${{ env.TAG }}
-            files: target/${{ matrix.target }}/release/out/*
+            files: release/*
   keepalive-workflow:
     # github超过60天未提交将自动停止工作流
     name: 工作流保活 
