@@ -210,7 +210,7 @@ jobs:
           sudo ln -s /opt/musl_gcc/${{ env.URL }}-cross/bin/*gcc /usr/bin/
           sudo apt-get update && sudo apt-get install -qq crossbuild-essential-arm64 crossbuild-essential-armhf musl-tools
           if [[ $TARGET =~ ^mips.*$ ]]; then
-            cd "/opt/musl_gcc/${{ env.URL }}-cross/lib/gcc/${{ env.URL }}/11.2.0" || exit 255
+            cd "/opt/musl_gcc/${{ env.URL }}-cross/lib/gcc/${{ env.URL }}/11.2.1" || exit 255
             cp libgcc_eh.a libunwind.a
             ar x libgcc.a _ctzsi2.o _clz.o _bswapsi2.o
             ar rcs libctz.a _ctzsi2.o _clz.o _bswapsi2.o
@@ -259,7 +259,7 @@ jobs:
           linker = "/opt/musl_gcc/mipsel-linux-muslsf-cross/bin/mipsel-linux-muslsf-gcc"
           rustflags = ["-C", "target-feature=+crt-static",
           "-L", "/opt/musl_gcc/mipsel-linux-muslsf-cross/mipsel-linux-muslsf/lib",
-          "-L", "/opt/musl_gcc/mipsel-linux-muslsf-cross/lib/gcc/mipsel-linux-muslsf/11.2.0",
+          "-L", "/opt/musl_gcc/mipsel-linux-muslsf-cross/lib/gcc/mipsel-linux-muslsf/11.2.1",
           "-l", "atomic",
           "-l", "ctz",
           "-l", "gcc"]
@@ -268,7 +268,7 @@ jobs:
           linker = "/opt/musl_gcc/mips-linux-muslsf-cross/bin/mips-linux-muslsf-gcc"
           rustflags = ["-C", "target-feature=+crt-static",
           "-L", "/opt/musl_gcc/mips-linux-muslsf-cross/mips-linux-muslsf/lib",
-          "-L", "/opt/musl_gcc/mips-linux-muslsf-cross/lib/gcc/mips-linux-muslsf/11.2.0",
+          "-L", "/opt/musl_gcc/mips-linux-muslsf-cross/lib/gcc/mips-linux-muslsf/11.2.1",
           "-l", "atomic",
           "-l", "ctz",
           "-l", "gcc"]      
@@ -302,13 +302,13 @@ jobs:
             
           if [[ $TARGET == 'aarch64-apple-darwin' || $TARGET == 'aarch64-pc-windows-msvc' || $TARGET == 'i686-pc-windows-msvc' || $TARGET == 'x86_64-unknown-freebsd' ]]; then
             echo "编译： cross build --locked --release --target=${{ matrix.target }}"
-            cross build --locked --release --target=${{ matrix.target }}
+            cross build --release --target=${{ matrix.target }}
           else
             echo "编译： cargo build --locked --release --target=${{ matrix.target }}"
             if [[ $TARGET =~ ^mips.*$ ]]; then
-              cargo +nightly-2026-02-02 build --locked --release --target=${{ matrix.target }}
+              cargo +nightly-2026-02-02 build --release --target=${{ matrix.target }}
             else
-              cargo build --locked --release --target=${{ matrix.target }}
+              cargo build --release --target=${{ matrix.target }}
             fi
           fi
             
