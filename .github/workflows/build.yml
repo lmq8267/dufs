@@ -315,7 +315,7 @@ jobs:
           echo "开始修改 Cargo.toml 写入 thunk-rs 以支持win7..."
           printf '\n[target.x86_64-pc-windows-msvc.build-dependencies]\nthunk-rs = { version = "0.3.3", features = ["win7"] }\n\n[target.i686-pc-windows-msvc.build-dependencies]\nthunk-rs = { version = "0.3.3", features = ["win7"] }\n\n[target.aarch64-pc-windows-msvc.build-dependencies]\nthunk-rs = { version = "0.3.3", features = ["win7"] }\n' >> Cargo.toml
           echo "创建 build.rs 文件..."
-          printf '// 配置 thunk-rs 来链接 Windows 7 兼容库，并自动设置链接参数\n#[cfg(windows)]\nfn main() {\n    thunk::thunk();\n}\n\n#[cfg(not(windows))]\nfn main() {}\n' > build.rs
+          printf '// 配置 thunk-rs 来链接 Windows 7 兼容库，并自动设置链接参数\n#[cfg(target_os = "windows")]\nfn main() {\n    if !std::env::var("TARGET").unwrap_or_default().contains("aarch64") {\n        thunk::thunk();\n    }\n}\n\n#[cfg(not(target_os = "windows"))]\nfn main() {}\n' > build.rs
             
           if [[ $TARGET == 'aarch64-apple-darwin' || $TARGET == 'aarch64-pc-windows-msvc' || $TARGET == 'i686-pc-windows-msvc' || $TARGET == 'x86_64-unknown-freebsd' ]]; then
             echo "编译： cross build --locked --release --target=${{ matrix.target }}"
