@@ -323,7 +323,7 @@ jobs:
           else
             echo "编译： cargo build --locked --release --target=${{ matrix.target }}"
             if [[ $TARGET =~ ^mips.*$ ]]; then
-              cargo +nightly-2026-02-02 build --release --target=${{ matrix.target }}
+              cargo +nightly-2026-02-02 build --release --target=${{ matrix.target }} -Z build-std=std,panic_abort
             else
               cargo build --release --target=${{ matrix.target }}
             fi
