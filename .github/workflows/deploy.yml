@@ -1,4 +1,4 @@
-name: 自动部署配置文件生成网页
+name: 🚀 自动部署配置文件生成网页 🌐
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     paths:
       - 'dufs_config.html'   # 修改这个配置生成文件时自动触发重新部署
   workflow_dispatch:
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,20 +16,31 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - name: 拉取代码
+      - name: 📥 拉取代码
         uses: actions/checkout@v5
 
-      - name: 复制并重命名为 index.html
+      - name: ✨ 复制并重命名为 index.html
         run: |
           cp dufs_config.html index.html
 
-      - name: 配置 GitHub Pages
+      - name: ⚙️ 配置 GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: 上传构建产物
+      - name: 📦 上传构建产物
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
 
-      - name: 部署到 Pages
+      - name: 🚀 部署到 Pages
         uses: actions/deploy-pages@v4
+
+      - name: 📝 生成部署摘要
+        run: |
+          PAGE_URL="https://${GITHUB_ACTOR}.github.io/${GITHUB_REPOSITORY#*/}/"
+          BUILD_TIME=$(TZ='Asia/Shanghai' date "+%Y-%m-%d %H:%M:%S")
+          echo "==============================================="
+          echo "🔗 页面地址: $PAGE_URL"
+          echo "💾 最后提交: $GITHUB_SHA"
+          echo "⏰ 部署时间: $BUILD_TIME"
+          echo "🌟 部署完成! 🚀"
+          echo "==============================================="
