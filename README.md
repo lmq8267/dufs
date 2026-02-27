@@ -6,3 +6,5 @@
 
 前端使用的是：https://github.com/TransparentLC/dufs-material-assets
 
+配置文件在线生成： https://lmq8267.github.io/dufs
+
