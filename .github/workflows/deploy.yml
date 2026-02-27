@@ -1,0 +1,32 @@
+name: 自动部署配置文件生成网页
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'dufs_config.html'   # 修改这个配置生成文件时自动触发重新部署
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v5
+
+      - name: 复制并重命名为 index.html
+        run: |
+          cp dufs_config.html index.html
+
+      - name: 配置 GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 部署到 Pages
+        uses: actions/deploy-pages@v4
