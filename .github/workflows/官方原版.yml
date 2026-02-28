@@ -1,0 +1,280 @@
+name: 编译官方原版dufs
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '指定编译[sigoden/dufs]的版本号或分支'
+        required: true
+        default: 'v0.45.0'
+        
+permissions:
+  contents: write
+  actions: write
+  
+env:
+  TZ: Asia/Shanghai
+  CARGO_TERM_COLOR: always
+  BRANCH: ${{ github.event.inputs.branch }}
+
+jobs:
+  build-dufs:
+    name: 🛠 编译 ${{ matrix.NAME }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        
+        - target: aarch64-apple-darwin
+          os: macos-latest
+          NAME: dufs-aarch64-apple-darwin
+          
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-aarch64-pc-windows-msvc.exe
+          
+        - target: x86_64-apple-darwin
+          os: macos-latest
+          NAME: dufs-x86_64-apple-darwin
+          
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-x86_64-pc-windows-msvc.exe
+          
+        - target: i686-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-i686-pc-windows-msvc.exe
+          
+        - target: aarch64-unknown-linux-musl
+          os: ubuntu-latest
+          URL: aarch64-linux-musl
+          NAME: dufs-aarch64-linux-musl
+          
+        - target: x86_64-unknown-linux-musl
+          os: ubuntu-latest
+          URL: x86_64-linux-musl
+          NAME: dufs-x86_64-linux-musl
+            
+        - target: i686-unknown-linux-musl
+          os: ubuntu-latest
+          URL: i686-linux-musl
+          NAME: dufs-i686-linux-musl
+        
+        - target: armv7-unknown-linux-musleabihf
+          os: ubuntu-latest
+          URL: armv7l-linux-musleabihf
+          NAME: dufs-armv7-linux-musleabihf
+
+        - target: armv7-unknown-linux-musleabi
+          os: ubuntu-latest
+          URL: armv7m-linux-musleabi
+          NAME: dufs-armv7-linux-musleabi
+          
+        - target: arm-unknown-linux-musleabihf
+          os: ubuntu-latest
+          URL: arm-linux-musleabihf
+          NAME: dufs-arm-linux-musleabihf
+
+        - target: arm-unknown-linux-musleabi
+          os: ubuntu-latest
+          URL: arm-linux-musleabi
+          NAME: dufs-arm-linux-musleabi
+
+        - target: mipsel-unknown-linux-musl
+          os: ubuntu-latest
+          URL: mipsel-linux-muslsf
+          NAME: dufs-mipsel-linux-muslsf
+
+        - target: mips-unknown-linux-musl
+          os: ubuntu-latest
+          URL: mips-linux-muslsf
+          NAME: dufs-mips-linux-muslsf
+
+        - target: x86_64-unknown-freebsd
+          os: ubuntu-latest
+          NAME: dufs-x86_64-freebsd
+            
+    runs-on: ${{ matrix.os }}
+    env:
+      TARGET: ${{ matrix.target }}
+      URL: ${{ matrix.URL }}
+      NAME: ${{ matrix.NAME }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: sigoden/dufs
+          ref: ${{ github.event.inputs.branch }}
+          
+      - name: 下载apple-windows工具链
+        if: ${{ matrix.TARGET == 'aarch64-apple-darwin' || matrix.TARGET == 'aarch64-pc-windows-msvc' || matrix.TARGET == 'x86_64-apple-darwin' || matrix.TARGET == 'x86_64-pc-windows-msvc' || matrix.TARGET == 'i686-pc-windows-msvc' || matrix.TARGET == 'x86_64-unknown-freebsd' }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          
+      - name: 下载apple-windows编译工具
+        if: ${{ matrix.TARGET == 'aarch64-apple-darwin' || matrix.TARGET == 'aarch64-pc-windows-msvc' || matrix.TARGET == 'i686-pc-windows-msvc' || matrix.TARGET == 'x86_64-unknown-freebsd' }}
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: 下载linux编译工具
+        if: ${{ matrix.TARGET != 'aarch64-apple-darwin' && matrix.TARGET != 'aarch64-pc-windows-msvc' && matrix.TARGET != 'x86_64-apple-darwin' && matrix.TARGET != 'x86_64-pc-windows-msvc' && matrix.TARGET != 'i686-pc-windows-msvc' && matrix.TARGET != 'x86_64-unknown-freebsd' }}
+        run: |
+          mkdir -p /opt/musl_gcc
+          rustup set auto-self-update disable
+          echo "下载https://github.com/lmq8267/Toolchain/releases/download/musl-cross/${{ env.URL }}-cross.tgz"
+          wget -q -c https://github.com/lmq8267/Toolchain/releases/download/musl-cross/${{ env.URL }}-cross.tgz -P /opt/musl_gcc/
+          tar zxf /opt/musl_gcc/${{ env.URL }}-cross.tgz -C /opt/musl_gcc/
+          sudo ln -s /opt/musl_gcc/${{ env.URL }}-cross/bin/*gcc /usr/bin/
+          sudo apt-get update && sudo apt-get install -qq crossbuild-essential-arm64 crossbuild-essential-armhf musl-tools
+          if [[ $TARGET =~ ^mips.*$ ]]; then
+            cd "/opt/musl_gcc/${{ env.URL }}-cross/lib/gcc/${{ env.URL }}/11.2.1" || exit 255
+            cp libgcc_eh.a libunwind.a
+            ar x libgcc.a _ctzsi2.o _clz.o _bswapsi2.o
+            ar rcs libctz.a _ctzsi2.o _clz.o _bswapsi2.o
+
+            rustup toolchain install nightly-2026-02-02-x86_64-unknown-linux-gnu
+            rustup component add rust-src --toolchain nightly-2026-02-02-x86_64-unknown-linux-gnu
+            # https://github.com/rust-lang/rust/issues/128808
+            # remove it after Cargo or rustc fix this.
+            RUST_LIB_SRC=$HOME/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/
+            if [[ -f $RUST_LIB_SRC/library/Cargo.lock && ! -f $RUST_LIB_SRC/Cargo.lock ]]; then 
+               cp -f $RUST_LIB_SRC/library/Cargo.lock $RUST_LIB_SRC/Cargo.lock
+            fi
+          else
+            rustup target add ${{ env.TARGET }}
+          fi
+          
+          #添加交叉编译配置
+          cat >>~/.cargo/config <<EOF
+          [target.x86_64-unknown-linux-musl]
+          linker = "x86_64-linux-musl-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.i686-unknown-linux-musl]
+          linker = "i686-linux-musl-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"] 
+          
+          [target.aarch64-unknown-linux-musl]
+          linker = "aarch64-linux-musl-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.armv7-unknown-linux-musleabi]
+          linker = "armv7m-linux-musleabi-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.armv7-unknown-linux-musleabihf]
+          linker = "armv7l-linux-musleabihf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.arm-unknown-linux-musleabi]
+          linker = "arm-linux-musleabi-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.arm-unknown-linux-musleabihf]
+          linker = "arm-linux-musleabihf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.x86_64-pc-windows-msvc]
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.i686-pc-windows-msvc]
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.aarch64-pc-windows-msvc]
+          rustflags = ["-C", "target-feature=+crt-static"]
+
+          [target.x86_64-apple-darwin]
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.aarch64-apple-darwin]
+          rustflags = ["-C", "target-feature=+crt-static"]
+          
+          [target.mipsel-unknown-linux-musl]
+          linker = "/opt/musl_gcc/mipsel-linux-muslsf-cross/bin/mipsel-linux-muslsf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static",
+          "-L", "/opt/musl_gcc/mipsel-linux-muslsf-cross/mipsel-linux-muslsf/lib",
+          "-L", "/opt/musl_gcc/mipsel-linux-muslsf-cross/lib/gcc/mipsel-linux-muslsf/11.2.1",
+          "-l", "atomic",
+          "-l", "ctz",
+          "-l", "gcc"]
+          
+          [target.mips-unknown-linux-musl]
+          linker = "/opt/musl_gcc/mips-linux-muslsf-cross/bin/mips-linux-muslsf-gcc"
+          rustflags = ["-C", "target-feature=+crt-static",
+          "-L", "/opt/musl_gcc/mips-linux-muslsf-cross/mips-linux-muslsf/lib",
+          "-L", "/opt/musl_gcc/mips-linux-muslsf-cross/lib/gcc/mips-linux-muslsf/11.2.1",
+          "-l", "atomic",
+          "-l", "ctz",
+          "-l", "gcc"]      
+          EOF
+      - name: 打印版本信息 (Rust, cargo, GCC)
+        shell: bash
+        run: |
+          rustup -V
+          rustup toolchain list
+          rustup default
+          cargo -V
+          rustc -V
+          
+      - name: 编译dufs
+        shell: bash
+        run: |
+          echo "开始修改 Cargo.toml 写入 thunk-rs 以支持win7..."
+          printf '\n[target.x86_64-pc-windows-msvc.build-dependencies]\nthunk-rs = { version = "0.3.3", features = ["win7"] }\n\n[target.i686-pc-windows-msvc.build-dependencies]\nthunk-rs = { version = "0.3.3", features = ["win7"] }\n\n[target.aarch64-pc-windows-msvc.build-dependencies]\nthunk-rs = { version = "0.3.3", features = ["win7"] }\n' >> Cargo.toml
+          echo "创建 build.rs 文件..."
+          printf '// 配置 thunk-rs 来链接 Windows 7 兼容库，并自动设置链接参数\n#[cfg(target_os = "windows")]\nfn main() {\n    if !std::env::var("TARGET").unwrap_or_default().contains("aarch64") {\n        thunk::thunk();\n    }\n}\n\n#[cfg(not(target_os = "windows"))]\nfn main() {}\n' > build.rs
+            
+          if [[ $TARGET == 'aarch64-apple-darwin' || $TARGET == 'aarch64-pc-windows-msvc' || $TARGET == 'i686-pc-windows-msvc' || $TARGET == 'x86_64-unknown-freebsd' ]]; then
+            echo "编译： cross build --locked --release --target=${{ matrix.target }}"
+            cross build --release --target=${{ matrix.target }}
+          else
+            echo "编译： cargo build --locked --release --target=${{ matrix.target }}"
+            if [[ $TARGET =~ ^mips.*$ ]]; then
+              cargo +nightly-2026-02-02 build --release --target=${{ matrix.target }} -Z build-std=std,panic_abort
+            else
+              cargo build --release --target=${{ matrix.target }}
+            fi
+          fi
+            
+          cd target/${{ matrix.target }}/release
+          mkdir -p ./out
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            mv ./dufs.exe ./out/${{ matrix.NAME }}
+          else
+            mv ./dufs ./out/${{ matrix.NAME }}
+          fi
+          
+          ls -alh ./out/
+          echo "build_time=$(TZ=UTC-8 date '+%Y年%m月%d日%H:%M:%S' | jq -sRr @uri)" >> $GITHUB_ENV
+      - name: 安装 UPX
+        if: ${{ matrix.TARGET != 'aarch64-apple-darwin' && matrix.TARGET != 'aarch64-pc-windows-msvc' && matrix.TARGET != 'x86_64-apple-darwin' && matrix.TARGET != 'x86_64-pc-windows-msvc' && matrix.TARGET != 'i686-pc-windows-msvc' && matrix.TARGET != 'x86_64-unknown-freebsd' }}
+        uses: crazy-max/ghaction-upx@v3
+        with:
+          version: v4.2.4
+          install-only: true
+      - name: 压缩程序
+        if: ${{ matrix.TARGET != 'aarch64-apple-darwin' && matrix.TARGET != 'aarch64-pc-windows-msvc' && matrix.TARGET != 'x86_64-apple-darwin' && matrix.TARGET != 'x86_64-pc-windows-msvc' && matrix.TARGET != 'i686-pc-windows-msvc' && matrix.TARGET != 'x86_64-unknown-freebsd' }}
+        run: |
+          cd target/${{ matrix.target }}/release/out
+          cp ${{ matrix.NAME }} ${{ matrix.NAME }}-upx
+          upx --lzma --best ${{ matrix.NAME }}-upx
+      - name: 上传程序
+        uses: actions/upload-artifact@v4
+        with:
+          name: dufs-${{ github.event.inputs.branch }}-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/out/*
+          
+  delete-workflow-runs:
+    name: 删除工作流 
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      -  name: 删除工作流
+         uses: Mattraks/delete-workflow-runs@main
+         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          retain_days: 0
+          keep_minimum_runs: 0
+          
