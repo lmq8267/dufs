@@ -458,7 +458,7 @@
 
                         <div class="form-group">
                             <label>
-                                认证规则
+                                认证规则（账户留空则为访客，rw为读写 ro为只读，访客谨慎设为rw）
                                 <span
                                     class="tooltip">用户认证规则，格式：user:pass@/path:rw,/other:ro。支持匿名用户（留空用户名密码）和哈希密码（$6$开头）</span>
                             </label>
@@ -519,7 +519,7 @@
 
                         <div class="form-group">
                             <label>
-                                日志格式
+                                日志格式 $remote_addr $request $status
                                 <span class="tooltip">HTTP日志格式，支持变量如$remote_addr, $request等。默认格式：'$remote_addr
                                     "$request" $status'</span>
                             </label>
