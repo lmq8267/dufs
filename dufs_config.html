@@ -466,7 +466,8 @@
                                 <div class="auth-item">
                                     <input type="text" placeholder="用户名（留空为匿名）" class="auth-user">
                                     <input type="password" placeholder="密码（留空为匿名，支持$6$开头的sha512哈希）" class="auth-pass">
-                                    <input type="text" placeholder="路径权限，如 /:rw,/public:ro" class="auth-path">
+                                    <input type="text" placeholder="路径:权限，如 /etc:rw,/tmp:ro 多个使用英文逗号分隔"
+                                        class="auth-path">
                                     <button type="button" class="btn btn-small btn-danger"
                                         onclick="removeAuthRule(this)">删除</button>
                                 </div>
