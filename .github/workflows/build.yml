@@ -83,6 +83,7 @@ jobs:
     needs: 
      - build-assets
      - check
+    name: 🛠 ${{ matrix.NAME }}
     strategy:
       fail-fast: false
       matrix:
