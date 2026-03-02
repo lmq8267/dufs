@@ -87,7 +87,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        
+        # 官方原版流程
         - target: aarch64-apple-darwin
           os: macos-latest
           NAME: dufs-aarch64-apple-darwin
@@ -156,6 +156,76 @@ jobs:
         - target: x86_64-unknown-freebsd
           os: ubuntu-latest
           NAME: dufs-x86_64-freebsd
+
+        # 修改前端样式的流程
+        - target: aarch64-apple-darwin
+          os: macos-latest
+          NAME: dufs-aarch64-apple-darwin_themed
+          
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-aarch64-pc-windows-msvc_themed.exe
+          
+        - target: x86_64-apple-darwin
+          os: macos-latest
+          NAME: dufs-x86_64-apple-darwin_themed
+          
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-x86_64-pc-windows-msvc_themed.exe
+          
+        - target: i686-pc-windows-msvc
+          os: windows-latest
+          NAME: dufs-i686-pc-windows-msvc_themed.exe
+          
+        - target: aarch64-unknown-linux-musl
+          os: ubuntu-latest
+          URL: aarch64-linux-musl
+          NAME: dufs-aarch64-linux-musl_themed
+          
+        - target: x86_64-unknown-linux-musl
+          os: ubuntu-latest
+          URL: x86_64-linux-musl
+          NAME: dufs-x86_64-linux-musl_themed
+            
+        - target: i686-unknown-linux-musl
+          os: ubuntu-latest
+          URL: i686-linux-musl
+          NAME: dufs-i686-linux-musl_themed
+        
+        - target: armv7-unknown-linux-musleabihf
+          os: ubuntu-latest
+          URL: armv7l-linux-musleabihf
+          NAME: dufs-armv7-linux-musleabihf_themed
+
+        - target: armv7-unknown-linux-musleabi
+          os: ubuntu-latest
+          URL: armv7m-linux-musleabi
+          NAME: dufs-armv7-linux-musleabi_themed
+          
+        - target: arm-unknown-linux-musleabihf
+          os: ubuntu-latest
+          URL: arm-linux-musleabihf
+          NAME: dufs-arm-linux-musleabihf_themed
+
+        - target: arm-unknown-linux-musleabi
+          os: ubuntu-latest
+          URL: arm-linux-musleabi
+          NAME: dufs-arm-linux-musleabi_themed
+
+        - target: mipsel-unknown-linux-musl
+          os: ubuntu-latest
+          URL: mipsel-linux-muslsf
+          NAME: dufs-mipsel-linux-muslsf_themed
+
+        - target: mips-unknown-linux-musl
+          os: ubuntu-latest
+          URL: mips-linux-muslsf
+          NAME: dufs-mips-linux-muslsf_themed
+
+        - target: x86_64-unknown-freebsd
+          os: ubuntu-latest
+          NAME: dufs-x86_64-freebsd_themed
             
     runs-on: ${{ matrix.os }}
     env:
@@ -303,11 +373,13 @@ jobs:
           cargo -V
           rustc -V
       - name: 下载 assets 页面
+        if: contains(matrix.NAME, '_themed')
         uses: actions/download-artifact@v4
         with:
           name: dufs-自定义页面
           path: dufs-material-assets-embed
       - name: 替换自定义 assets 页面
+        if: contains(matrix.NAME, '_themed')
         shell: bash
         run: |
           cp dufs-material-assets-embed/index.css assets/index.css
@@ -394,9 +466,25 @@ jobs:
             body: |
              > ### ![](https://img.shields.io/badge/%E7%BC%96%E8%AF%91%E6%97%B6%E9%97%B4-${{ env.build_time }}-8267?logo=github&labelColor=%E9%A1%BB)![](https://img.shields.io/github/downloads/${{ github.repository }}/${{ env.TAG }}/total?label=%E4%B8%8B%E8%BD%BD%E6%AC%A1%E6%95%B0&logo=github) 
 
-              **-upx** 后缀的 为upx压缩文件
-              
-              **[官方更新说明](https://github.com/sigoden/dufs/releases)**
+             ### 📦 版本说明
+
+             - 🎨 **包含 `_themed` 后缀**：  
+                集成 :[TransparentLC/dufs-material-assets](https://github.com/TransparentLC/dufs-material-assets)的前端样式（美化界面及功能）
+
+             - 📄 **不包含 `_themed` 后缀**：  
+               官方原版界面，来自 :[sigoden/dufs](https://github.com/sigoden/dufs) （体积相对小几百k）
+
+             ### ⚙️ 其他说明
+
+             - **`-upx` 后缀**：使用 UPX 压缩的二进制文件（体积更小）
+             - 所有版本均为自动构建
+
+             ### 🔗 相关项目
+
+             - 官方项目：https://github.com/sigoden/dufs
+             - 前端主题：https://github.com/TransparentLC/dufs-material-assets
+             - 版本更新说明：https://github.com/sigoden/dufs/releases
+ 
 
               ${{ github.event.inputs.info }}
               
