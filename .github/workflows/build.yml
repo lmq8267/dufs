@@ -256,7 +256,15 @@ jobs:
             TAG=${{ needs.check.outputs.tag }}
             echo "TAG=$TAG" >> $GITHUB_ENV
           fi
-          echo "TAG=$TAG" >> $GITHUB_OUTPUT 
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+          
+          NAME="${MATRIX_NAME}"
+          if [[ "$NAME" == *.exe ]]; then
+            NAME="${NAME%.exe}"
+          fi
+          echo "ARTIFACT_NAME=$NAME" >> $GITHUB_ENV
+        env:
+          MATRIX_NAME: ${{ matrix.NAME }}
           
       - uses: actions/checkout@v5
         with:
@@ -431,7 +439,7 @@ jobs:
       - name: 上传程序
         uses: actions/upload-artifact@v4
         with:
-          name: dufs-${{ matrix.target }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: target/${{ matrix.target }}/release/out/*
 
   release:
