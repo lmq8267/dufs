@@ -478,6 +478,7 @@ jobs:
              ### ⚙️ 其他说明
 
              - **`-upx` 后缀**：使用 UPX 压缩的二进制文件（体积更小）
+             - **`index.css` `index.html` `index.js`**：[TransparentLC/dufs-material-assets](https://github.com/TransparentLC/dufs-material-assets)的前端样式文件
              - 所有版本均为自动构建
 
              ### 🔗 相关项目
