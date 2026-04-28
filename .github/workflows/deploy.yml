@@ -1,0 +1,51 @@
+name: 🚀 自动部署配置文件生成网页 🌐
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'dufs_config.html'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: 📥 拉取代码
+        uses: actions/checkout@v5
+
+      - name: ✨ 复制并重命名为 index.html
+        run: |
+          cp dufs_config.html index.html
+
+      - name: ⚙️ 配置 GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 📦 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 🚀 部署到 Pages
+        uses: actions/deploy-pages@v4
+
+      - name: 📝 生成部署摘要
+        run: |
+          PAGE_URL="https://${GITHUB_ACTOR}.github.io/${GITHUB_REPOSITORY#*/}/"
+          BUILD_TIME=$(TZ='Asia/Shanghai' date "+%Y-%m-%d %H:%M:%S")
+          echo "==============================================="
+          echo "🌟 部署完成! 🚀"
+          echo "🔗 页面地址: $PAGE_URL"
+          echo "💾 最后提交: $GITHUB_SHA"
+          echo "⏰ 部署时间: $BUILD_TIME"
+          echo "==============================================="
+          # 写入 GitHub Summary
+          echo "## 🌟 部署摘要" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 页面地址: [$PAGE_URL]($PAGE_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "- 💾 最后提交: \`$GITHUB_SHA\`" >> $GITHUB_STEP_SUMMARY
+          echo "- ⏰ 部署时间: $BUILD_TIME" >> $GITHUB_STEP_SUMMARY

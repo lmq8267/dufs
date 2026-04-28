@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon"
+        href="data:image/x-icon;base64,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">
+    <title>Dufs 配置生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --bg-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            }
+
+            50% {
+                background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            animation: fadeIn 1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        label:hover .tooltip {
+            opacity: 1;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .auth-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .config-output {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .add-btn {
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden-input {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Dufs 配置生成器</h1>
+            <p class="subtitle">可视化生成 Dufs 文件服务器配置文件</p>
+        </header>
+
+        <main class="main-content">
+            <section class="card">
+                <form id="configForm">
+                    <!-- 基础配置 -->
+                    <div class="form-section">
+                        <h3 class="section-title">基础配置</h3>
+
+                        <div class="form-group">
+                            <label>
+                                服务路径
+                                <span class="tooltip">指定要服务的目录路径，默认为当前目录</span>
+                            </label>
+                            <input type="text" id="servePath" value="." placeholder="例如: /var/www 或 .">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                路径前缀
+                                <span class="tooltip">URL路径前缀，用于反向代理场景</span>
+                            </label>
+                            <input type="text" id="pathPrefix" placeholder="例如: /dufs">
+                        </div>
+                    </div>
+
+                    <!-- 网络配置 -->
+                    <div class="form-section">
+                        <h3 class="section-title">网络配置</h3>
+
+                        <div class="form-group">
+                            <label>
+                                绑定地址
+                                <span class="tooltip">服务器监听的IP地址，多个地址用逗号分隔留空将同时监听 IPv4 (0.0.0.0) 和 IPv6 (::)</span>
+                            </label>
+                            <input type="text" id="bind" placeholder="例如: 0.0.0.0,:: 或 127.0.0.1 或 192.168.1.1">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                端口
+                                <span class="tooltip">服务器监听端口，默认为5000</span>
+                            </label>
+                            <input type="number" id="port" value="5000" min="1" max="65535">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                TLS证书路径
+                                <span class="tooltip">HTTPS证书文件路径（可选）</span>
+                            </label>
+                            <input type="text" id="tlsCert" placeholder="例如: /path/to/cert.pem">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                TLS私钥路径
+                                <span class="tooltip">HTTPS私钥文件路径（可选）</span>
+                            </label>
+                            <input type="text" id="tlsKey" placeholder="例如: /path/to/key.pem">
+                        </div>
+                    </div>
+
+                    <!-- 权限配置 -->
+                    <div class="form-section">
+                        <h3 class="section-title">权限配置</h3>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="allowAll">
+                            <label for="allowAll">
+                                允许所有操作
+                                <span class="tooltip">允许上传、删除、搜索等所有操作</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="allowUpload">
+                            <label for="allowUpload">
+                                允许上传
+                                <span class="tooltip">允许上传文件和文件夹</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="allowDelete">
+                            <label for="allowDelete">
+                                允许删除
+                                <span class="tooltip">允许删除文件和文件夹</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="allowSearch">
+                            <label for="allowSearch">
+                                允许搜索
+                                <span class="tooltip">允许搜索文件和文件夹</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="allowSymlink">
+                            <label for="allowSymlink">
+                                允许符号链接
+                                <span class="tooltip">允许访问根目录外的符号链接</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="allowArchive">
+                            <label for="allowArchive">
+                                允许归档下载
+                                <span class="tooltip">允许下载文件夹为压缩包</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enableCors">
+                            <label for="enableCors">
+                                启用CORS
+                                <span class="tooltip">启用跨域资源共享</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 访问控制 -->
+                    <div class="form-section">
+                        <h3 class="section-title">访问控制</h3>
+
+                        <div class="form-group">
+                            <label>
+                                隐藏路径
+                                <span class="tooltip">从目录列表中隐藏的路径，支持glob模式</span>
+                            </label>
+                            <input type="text" id="hidden" placeholder="例如: tmp,*.log,*.lock">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                认证规则（账户留空则为访客，rw为读写 ro为只读，访客谨慎设为rw）
+                                <span
+                                    class="tooltip">用户认证规则，格式：user:pass@/path:rw,/other:ro。支持匿名用户（留空用户名密码）和哈希密码（$6$开头）</span>
+                            </label>
+                            <div id="authRules">
+                                <div class="auth-item">
+                                    <input type="text" placeholder="用户名（留空为匿名）" class="auth-user">
+                                    <input type="password" placeholder="密码（留空为匿名，支持$6$开头的sha512哈希）" class="auth-pass">
+                                    <input type="text" placeholder="路径:权限，如 /etc:rw,/tmp:ro 多个使用英文逗号分隔"
+                                        class="auth-path">
+                                    <button type="button" class="btn btn-small btn-danger"
+                                        onclick="removeAuthRule(this)">删除</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-btn" onclick="addAuthRule()">+ 添加认证规则</button>
+                        </div>
+                    </div>
+
+                    <!-- 渲染选项 -->
+                    <div class="form-section">
+                        <h3 class="section-title">渲染选项</h3>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="renderIndex">
+                            <label for="renderIndex">
+                                渲染索引
+                                <span class="tooltip">目录请求时返回index.html，不存在则404</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="renderTryIndex">
+                            <label for="renderTryIndex">
+                                尝试渲染索引
+                                <span class="tooltip">目录请求时尝试返回index.html，失败则显示目录列表</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="renderSpa">
+                            <label for="renderSpa">
+                                SPA模式
+                                <span class="tooltip">单页应用模式</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                资源目录
+                                <span class="tooltip">自定义UI资源目录路径</span>
+                            </label>
+                            <input type="text" id="assets" placeholder="例如: ./assets">
+                        </div>
+                    </div>
+
+                    <!-- 日志配置 -->
+                    <div class="form-section">
+                        <h3 class="section-title">日志配置</h3>
+
+                        <div class="form-group">
+                            <label>
+                                日志格式 $remote_addr $request $status
+                                <span class="tooltip">HTTP日志格式，支持变量如$remote_addr, $request等。默认格式：'$remote_addr
+                                    "$request" $status'</span>
+                            </label>
+                            <input type="text" id="logFormat" placeholder='例如: [$remote_addr] [$request] [$status]'>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                日志文件
+                                <span class="tooltip">日志文件路径，留空则输出到标准输出</span>
+                            </label>
+                            <input type="text" id="logFile" placeholder="例如: ./dufs.log">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                压缩级别
+                                <span class="tooltip">ZIP压缩级别</span>
+                            </label>
+                            <select id="compress">
+                                <option value="none">无压缩</option>
+                                <option value="low" selected>低压缩</option>
+                                <option value="medium">中等压缩</option>
+                                <option value="high">高压缩</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="generateConfig()">生成配置</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h3 class="section-title">生成的配置文件</h3>
+                <div class="config-output" id="configOutput">
+                    # 在左侧填写配置后点击"生成配置"按钮
+                    # 配置将以YAML格式显示在这里
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="copyConfig()">
+                        📋 复制配置
+                    </button>
+                    <button class="btn btn-primary" onclick="downloadConfig()">
+                        💾 下载配置
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 添加认证规则  
+        function addAuthRule() {
+            const authRules = document.getElementById('authRules');
+            const newRule = document.createElement('div');
+            newRule.className = 'auth-item';
+            newRule.innerHTML = `  
+                <input type="text" placeholder="用户名（留空为匿名）" class="auth-user">  
+                <input type="password" placeholder="密码（留空为匿名，支持$6$开头的sha512哈希）" class="auth-pass">  
+                <input type="text" placeholder="路径权限，如 /:rw,/public:ro" class="auth-path">  
+                <button type="button" class="btn btn-small btn-danger" onclick="removeAuthRule(this)">删除</button>  
+            `;
+            authRules.appendChild(newRule);
+        }
+
+        // 删除认证规则  
+        function removeAuthRule(button) {
+            const authRules = document.getElementById('authRules');
+            if (authRules.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                showMessage('至少需要保留一个认证规则配置项');
+            }
+        }
+
+        // 生成配置  
+        function generateConfig(shouldScroll = true) {
+            const config = {};
+
+            // 基础配置  
+            const servePath = document.getElementById('servePath').value.trim();
+            if (servePath && servePath !== '.') {
+                config['serve-path'] = servePath;
+            }
+
+            const pathPrefix = document.getElementById('pathPrefix').value.trim();
+            if (pathPrefix) {
+                config['path-prefix'] = pathPrefix;
+            }
+
+            // 网络配置  
+            const bind = document.getElementById('bind').value.trim();
+            if (bind) {
+                config.bind = bind.split(',').map(addr => addr.trim());
+            }
+
+            const port = parseInt(document.getElementById('port').value);
+            if (port !== 5000) {
+                config.port = port;
+            }
+
+            const tlsCert = document.getElementById('tlsCert').value.trim();
+            const tlsKey = document.getElementById('tlsKey').value.trim();
+            if (tlsCert || tlsKey) {
+                if (tlsCert) config['tls-cert'] = tlsCert;
+                if (tlsKey) config['tls-key'] = tlsKey;
+            }
+
+            // 权限配置  
+            const permissions = {};
+            if (document.getElementById('allowAll').checked) {
+                config['allow-all'] = true;
+            } else {
+                if (document.getElementById('allowUpload').checked) permissions['allow-upload'] = true;
+                if (document.getElementById('allowDelete').checked) permissions['allow-delete'] = true;
+                if (document.getElementById('allowSearch').checked) permissions['allow-search'] = true;
+                if (document.getElementById('allowSymlink').checked) permissions['allow-symlink'] = true;
+                if (document.getElementById('allowArchive').checked) permissions['allow-archive'] = true;
+            }
+            Object.assign(config, permissions);
+
+            if (document.getElementById('enableCors').checked) {
+                config['enable-cors'] = true;
+            }
+
+            // 访问控制  
+            const hidden = document.getElementById('hidden').value.trim();
+            if (hidden) {
+                config.hidden = hidden.split(',').map(h => h.trim());
+            }
+
+            const authRules = [];
+            document.querySelectorAll('.auth-item').forEach(item => {
+                const user = item.querySelector('.auth-user').value.trim();
+                const pass = item.querySelector('.auth-pass').value.trim();
+                const path = item.querySelector('.auth-path').value.trim();
+
+                if (path) {  // 只要路径不为空就生成规则  
+                    if (user || pass) {
+                        authRules.push(`${user}:${pass}@${path}`);
+                    } else {
+                        // 匿名用户，需要YAML引号  
+                        authRules.push(`"@${path}"`);
+                    }
+                }
+            });
+            if (authRules.length > 0) {
+                config.auth = authRules;
+            }
+
+            // 渲染选项  
+            if (document.getElementById('renderIndex').checked) config['render-index'] = true;
+            if (document.getElementById('renderTryIndex').checked) config['render-try-index'] = true;
+            if (document.getElementById('renderSpa').checked) config['render-spa'] = true;
+
+            const assets = document.getElementById('assets').value.trim();
+            if (assets) config.assets = assets;
+
+            // 日志配置  
+            const logFormat = document.getElementById('logFormat').value.trim();
+            if (logFormat) config['log-format'] = logFormat;
+
+            const logFile = document.getElementById('logFile').value.trim();
+            if (logFile) config['log-file'] = logFile;
+
+            const compress = document.getElementById('compress').value;
+            if (compress !== 'low') config.compress = compress;
+
+            // 生成YAML  
+            let yaml = '# Dufs 配置文件\n';
+            yaml += '# 生成时间: ' + new Date().toLocaleString() + '\n\n';
+
+            if (Object.keys(config).length === 0) {
+                yaml += '# 使用默认配置\n# 所有参数将采用默认值';
+            } else {
+                yaml += objectToYaml(config, 0);
+            }
+
+            document.getElementById('configOutput').textContent = yaml;
+            showMessage('配置生成成功！');
+
+            if (shouldScroll) {
+                // 滚动到输出区域（移动端兼容）
+                const outputCard = document.getElementById('configOutput');
+                if (outputCard) {
+                    const offsetTop = outputCard.getBoundingClientRect().top + window.scrollY - Math.min(20, window.innerHeight * 0.05);
+                    window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+
+                    // 高亮提示
+                    outputCard.style.transition = 'box-shadow 0.3s ease';
+                    outputCard.style.boxShadow = '0 0 30px rgba(102,126,234,0.6)';
+                    setTimeout(() => { outputCard.style.boxShadow = ''; }, 1500);
+                }
+            }
+        }
+
+        // 配置项注释映射  
+        const configComments = {
+            'serve-path': '# 作为文件服务器的目录路径',
+            'path-prefix': '# URL路径前缀，用于反向代理场景\n' +
+                '#  - 作用：让dufs在子路径下运行，如 example.com/files/\n' +
+                '#  - 处理：自动从请求路径中剥离前缀，生成正确的内部路径\n' +
+                '#  - 影响：影响所有URL生成（资源链接、重定向、面包屑导航）\n' +
+                '#  - 编码：特殊字符会自动URL编码（如空格变为%20）\n' +
+                '#  - 示例：files 对应 /files/，api/v1 对应 /api/v1/',
+            'bind': '# 文件服务器监听的IP地址，多个地址用逗号分隔',
+            'port': '# 文件服务器监听端口，默认为5000',
+            'tls-cert': '# HTTPS证书文件路径',
+            'tls-key': '# HTTPS私钥文件路径',
+            'hidden': '# 从目录列表中隐藏的路径和文件，支持glob模式\n' +
+                '#  - 支持通配符：* (任意字符)、? (单个字符)\n' +
+                '#  - 目录模式：以/结尾只匹配目录 (如 "tmp/")\n' +
+                '#  - 常用模式：".git" (隐藏git目录)、"*.log" (隐藏日志文件)\n' +
+                '#  - 多个模式：用逗号分隔 (如 "tmp,*.log,.*")',
+            'auth': '# 用户认证规则。格式：user:pass@/path:rw,/path2:ro\n' +
+                '#  - 匿名用户：@/path (所有人可访问)\n' +
+                '#  - 多路径：用英文逗号分隔不同路径权限\n' +
+                '#  - 权限：:rw(读写) 或 :ro(只读，可省略)\n' +
+                '#  - 哈希密码：支持$6$开头的sha512哈希',
+            'allow-all': '# 允许所有操作（上传、删除、搜索等）',
+            'allow-upload': '# 允许上传文件和文件夹',
+            'allow-delete': '# 允许删除文件和文件夹',
+            'allow-search': '# 允许搜索文件和文件夹',
+            'allow-symlink': '# 允许访问根目录外的符号链接',
+            'allow-archive': '# 允许下载文件夹为压缩包',
+            'enable-cors': '# 启用跨域资源共享',
+            'render-index': '# 目录请求时返回index.html，不存在则404',
+            'render-try-index': '# 目录请求时尝试返回index.html，失败则显示目录列表',
+            'render-spa': '# 单页应用模式',
+            'assets': '# 自定义前端UI资源目录路径',
+            'log-format': '# HTTP日志格式，支持变量如$remote_addr, $request等',
+            'log-file': '# 日志文件路径，去掉此项则输出到标准输出',
+            'compress': '# ZIP压缩级别（none/low/medium/high）'
+        };
+
+        // 对象转YAML（带注释）  
+        function objectToYaml(obj, indent) {
+            let yaml = '';
+            const spaces = '  '.repeat(indent);
+
+            for (const [key, value] of Object.entries(obj)) {
+                // 添加注释  
+                if (configComments[key]) {
+                    yaml += `${spaces}${configComments[key]}\n`;
+                }
+
+                if (Array.isArray(value)) {
+                    yaml += `${spaces}${key}:\n`;
+                    value.forEach(item => {
+                        yaml += `${spaces}  - ${item}\n`;
+                    });
+                } else if (typeof value === 'object' && value !== null) {
+                    yaml += `${spaces}${key}:\n`;
+                    yaml += objectToYaml(value, indent + 1);
+                } else {
+                    yaml += `${spaces}${key}: ${value}\n`;
+                }
+                yaml += '\n'; // 添加空行分隔  
+            }
+
+            return yaml;
+        }
+
+        function copyConfig() {
+            const el = document.getElementById('configOutput');
+            if (!el) return;
+
+            // 获取文本内容（兼容 div / pre / textarea）
+            const text = el.value !== undefined ? el.value : el.innerText;
+
+            // ✅ 优先使用现代 Clipboard API（HTTPS 下可用）
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('已复制到剪贴板');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+
+            // 🔁 兜底复制方案（兼容安卓 / iOS 老版本）
+            function fallbackCopy(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+
+                // 防止页面滚动
+                textarea.style.position = 'fixed';
+                textarea.style.top = '0';
+                textarea.style.left = '0';
+                textarea.style.opacity = '0';
+                textarea.style.pointerEvents = 'none';
+
+                document.body.appendChild(textarea);
+
+                textarea.focus();
+                textarea.select();
+                textarea.setSelectionRange(0, textarea.value.length);
+
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        showMessage('已复制到剪贴板');
+                    } else {
+                        showMessage('复制失败，请手动长按复制');
+                    }
+                } catch (err) {
+                    showMessage('复制失败，请手动长按复制');
+                }
+
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // 下载配置  
+        function downloadConfig() {
+            const configText = document.getElementById('configOutput').textContent;
+            const blob = new Blob([configText], { type: 'text/yaml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dufs-config.yaml';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('配置文件下载中...');
+        }
+
+        // 显示消息  
+        function showMessage(message) {
+            // 创建消息元素  
+            const messageEl = document.createElement('div');
+            messageEl.style.cssText = `  
+                position: fixed;  
+                top: 20px;  
+                right: 20px;  
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);  
+                color: white;  
+                padding: 15px 25px;  
+                border-radius: 10px;  
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);  
+                z-index: 10000;  
+                animation: slideIn 0.3s ease;  
+                font-weight: 500;  
+            `;
+            messageEl.textContent = message;
+
+            // 添加动画样式  
+            const style = document.createElement('style');
+            style.textContent = `  
+                @keyframes slideIn {  
+                    from { transform: translateX(100%); opacity: 0; }  
+                    to { transform: translateX(0); opacity: 1; }  
+                }  
+                @keyframes slideOut {  
+                    from { transform: translateX(0); opacity: 1; }  
+                    to { transform: translateX(100%); opacity: 0; }  
+                }  
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(messageEl);
+
+            // 3秒后自动消失  
+            setTimeout(() => {
+                messageEl.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(messageEl);
+                }, 300);
+            }, 3000);
+        }
+
+        // 监听allow-all变化  
+        document.getElementById('allowAll').addEventListener('change', function () {
+            const allowCheckboxes = ['allowUpload', 'allowDelete', 'allowSearch', 'allowSymlink', 'allowArchive'];
+            allowCheckboxes.forEach(id => {
+                const checkbox = document.getElementById(id);
+                checkbox.disabled = this.checked;
+                if (this.checked) {
+                    checkbox.checked = false;
+                }
+            });
+        });
+
+        // 初始化时生成默认配置预览  
+        window.addEventListener('load', function () {
+            generateConfig(false);
+        });  
+    </script>
+</body>
+
+</html>
