@@ -10,3 +10,4 @@
 
 配置文件在线生成： https://lmq8267.github.io/dufs
 
+<img width="1907" height="856" alt="image" src="https://github.com/user-attachments/assets/144ebfe7-b11e-4b99-b561-a90d3b6aefca" />
