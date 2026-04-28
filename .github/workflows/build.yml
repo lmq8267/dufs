@@ -645,14 +645,27 @@ jobs:
             for ARCH in "$@"; do
 
               # ========= 基础文件 =========
-              RAW="dufs-${ARCH}"
-              RAW_UPX="dufs-${ARCH}-upx"
+              if [[ "$ARCH" == *.exe ]]; then
+                BASE_ARCH="${ARCH%.exe}"
 
-              T1="dufs-${ARCH}_transparentlc"
-              T1_UPX="dufs-${ARCH}_transparentlc-upx"
+                RAW="dufs-${BASE_ARCH}.exe"
+                RAW_UPX="dufs-${BASE_ARCH}-upx.exe"
 
-              T2="dufs-${ARCH}_cercky"
-              T2_UPX="dufs-${ARCH}_cercky-upx"
+                T1="dufs-${BASE_ARCH}_transparentlc.exe"
+                T1_UPX="dufs-${BASE_ARCH}_transparentlc-upx.exe"
+
+                T2="dufs-${BASE_ARCH}_cercky.exe"
+                T2_UPX="dufs-${BASE_ARCH}_cercky-upx.exe"
+              else
+                RAW="dufs-${ARCH}"
+                RAW_UPX="dufs-${ARCH}-upx"
+
+                T1="dufs-${ARCH}_transparentlc"
+                T1_UPX="dufs-${ARCH}_transparentlc-upx"
+
+                T2="dufs-${ARCH}_cercky"
+                T2_UPX="dufs-${ARCH}_cercky-upx"
+              fi
 
               BASE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}"
 
