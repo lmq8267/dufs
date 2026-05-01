@@ -436,6 +436,14 @@
                         </div>
 
                         <div class="checkbox-group">
+                            <input type="checkbox" id="allowHash">
+                            <label for="allowHash">
+                                允许哈希查询
+                                <span class="tooltip">允许通过 ?hash 查询获取文件的 sha256 哈希值</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
                             <input type="checkbox" id="enableCors">
                             <label for="enableCors">
                                 启用CORS
@@ -455,6 +463,7 @@
                             </label>
                             <input type="text" id="hidden" placeholder="例如: tmp,*.log,*.lock">
                         </div>
+
 
                         <div class="form-group">
                             <label>
@@ -638,6 +647,7 @@
                 if (document.getElementById('allowSearch').checked) permissions['allow-search'] = true;
                 if (document.getElementById('allowSymlink').checked) permissions['allow-symlink'] = true;
                 if (document.getElementById('allowArchive').checked) permissions['allow-archive'] = true;
+                if (document.getElementById('allowHash').checked) permissions['allow-hash'] = true;
             }
             Object.assign(config, permissions);
 
@@ -745,6 +755,7 @@
             'allow-search': '# 允许搜索文件和文件夹',
             'allow-symlink': '# 允许访问根目录外的符号链接',
             'allow-archive': '# 允许下载文件夹为压缩包',
+            'allow-hash': '# 允许通过 ?hash 查询获取文件的 sha256 哈希值',
             'enable-cors': '# 启用跨域资源共享',
             'render-index': '# 目录请求时返回index.html，不存在则404',
             'render-try-index': '# 目录请求时尝试返回index.html，失败则显示目录列表',
@@ -895,7 +906,7 @@
 
         // 监听allow-all变化  
         document.getElementById('allowAll').addEventListener('change', function () {
-            const allowCheckboxes = ['allowUpload', 'allowDelete', 'allowSearch', 'allowSymlink', 'allowArchive'];
+            const allowCheckboxes = ['allowUpload', 'allowDelete', 'allowSearch', 'allowSymlink', 'allowArchive', 'allowHash'];
             allowCheckboxes.forEach(id => {
                 const checkbox = document.getElementById(id);
                 checkbox.disabled = this.checked;
