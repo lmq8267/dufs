@@ -101,6 +101,7 @@ jobs:
         with:
           name: dufs-transparentlc-assets
           path: dist
+          retention-days: 1
 
   build-cercky-assets:
     needs: check
@@ -127,6 +128,7 @@ jobs:
         with:
           name: dufs-cercky-assets
           path: dist
+          retention-days: 1
 
   package-assets:
     needs:
@@ -172,6 +174,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: assets-pack
+          retention-days: 1
           path: |
             dufs-assets-transparentlc.tar.gz
             dufs-assets-cercky.tar.gz
@@ -603,6 +606,7 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: target/${{ matrix.target }}/release/out/*
+          retention-days: 1
           
   summary:
     needs: version
